@@ -16,6 +16,8 @@ mongoose.connect(process.env.MONGODB_URI);
 const seedDB = require('./seeds');
 // seedDB();
 
+app.use(express.static(__dirname + '/public'));
+
 //bodyParser middleware
 app.use(bodyParser.urlencoded({extended: true}));
 
