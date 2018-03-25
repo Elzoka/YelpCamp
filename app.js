@@ -46,125 +46,14 @@ app.use((req, res, next) => {
     next();
 });
 
-// =====================
 // Routes
-// =====================
+const campgroundRoutes = require('./routes/campgrounds');
+const commentRoutes = require('./routes/comments');
+const indexRoutes = require('./routes/index');
 
-app.get('/', (req, res) => {
-    res.render('landing');
-});
-
-app.get('/campgrounds', (req, res) => {
-    Campground.find({})
-        .then(campgrounds => {
-            res.render('campgrounds/index', {campgrounds});
-        })
-        .catch(err => {
-            console.log(err);
-        })
-});
-
-app.get('/campgrounds/new', (req, res) =>{
-    res.render('campgrounds/new');
-});
-
-app.post('/campgrounds', (req, res) => {
-    Campground.create({
-        name: req.body.name,
-        image: req.body.image,
-        description: req.body.description
-    })
-        .then(campground => {
-            res.redirect('/campgrounds');
-        })
-        .catch(err => {
-            console.log(err);
-        });
-});
-app.get('/campgrounds/:id', (req, res) => {
-    Campground.findById(req.params.id)
-        .populate('comments')
-        .then(campground => {
-            res.render('campgrounds/show', {campground});
-        })
-        .catch(err => console.log(err));
-});
-
-// =======================
-// COMMENTS ROUTES
-// =======================
-
-app.get('/campgrounds/:id/comments/new', isLoggedIn,(req, res) => {
-    Campground.findById(req.params.id)
-        .then(campground => {
-            res.render('comments/new', {campground});
-        })
-        .catch(err => {
-            console.log(err);
-        })
-});
-
-app.post('/campgrounds/:id/comments', isLoggedIn,(req, res) => {
-    Campground.findById(req.params.id)
-        .then(campground => {
-            Comment.create(req.body.comment)
-                .then(comment => {
-                    campground.comments.push(comment);
-                    campground.save()
-                    res.redirect(`/campgrounds/${campground._id}`);
-                })
-                .catch(err => {
-                    console.log(err)
-                })
-        })
-        .catch(err => {
-            console.log(err);
-            res.redirect('/campgrounds');
-        })
-});
-
-// =======================
-// Auth ROUTES
-// =======================
-app.get('/register', (req, res) => {
-    res.render('auth/register');
-});
-
-app.post('/register', (req, res) => {
-    User.register(new User({username: req.body.username}), req.body.password)
-        .then(user => {
-            passport.authenticate('local')(req, res, () => {
-                res.redirect('/campgrounds');
-            })
-        })
-        .catch(err => {
-            console.log(err);
-            res.render('auth/register');
-        });
-});
-
-app.get('/login', (req, res) => {
-    res.render('auth/login');
-});
-
-app.post('/login',passport.authenticate('local', {
-    successRedirect: '/campgrounds',
-    failureRedirect: '/login'
-}) ,(req, res) => {
-
-});
-
-app.get('/logout', (req, res) => {
-    req.logout();
-    res.redirect('/campgrounds');
-});
-
-function isLoggedIn (req, res, next){
-    if(req.isAuthenticated()){
-        return next();
-    }
-    res.redirect('/login')
-}
+app.use('/campgrounds', campgroundRoutes);
+app.use('/campgrounds/:id/comments', commentRoutes);
+app.use('/', indexRoutes);
 
 app.listen(process.env.PORT, () => {
     console.log(`The server is up on port ${process.env.PORT}`);
