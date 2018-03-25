@@ -14,16 +14,20 @@ router.get('/', (req, res) => {
 });
 
 // New route
-router.get('/new', (req, res) =>{
+router.get('/new', isLoggedIn,(req, res) =>{
     res.render('campgrounds/new');
 });
 
 // create route
-router.post('/', (req, res) => {
+router.post('/', isLoggedIn,(req, res) => {
     Campground.create({
         name: req.body.name,
         image: req.body.image,
-        description: req.body.description
+        description: req.body.description,
+        author: {
+            id: req.user._id,
+            username: req.user.username
+        }
     })
         .then(campground => {
             res.redirect('/campgrounds');
@@ -42,5 +46,13 @@ router.get('/:id', (req, res) => {
         })
         .catch(err => console.log(err));
 });
+
+// middleware
+function isLoggedIn (req, res, next){
+    if(req.isAuthenticated()){
+        return next();
+    }
+    res.redirect('/login')
+}
 
 module.exports = router;
