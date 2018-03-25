@@ -8,6 +8,7 @@ const mongoose   = require('mongoose');
 const app        = express();
 const passport   = require('passport');
 const LocalStrategy = require('passport-local');
+const methodOverride = require('method-override');
 
 // require models
 const Campground = require('./models/campground');
@@ -15,6 +16,9 @@ const Comment = require('./models/comment');
 const User = require('./models/user');
 
 mongoose.connect(process.env.MONGODB_URI);
+
+//method-override middleware
+app.use(methodOverride('_method'));
 
 const seedDB = require('./seeds');
 // seedDB();

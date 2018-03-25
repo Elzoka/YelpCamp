@@ -47,12 +47,63 @@ router.get('/:id', (req, res) => {
         .catch(err => console.log(err));
 });
 
+// Edit campground route
+router.get('/:id/edit', checkCampgroundOwnership,(req, res) => {
+        Campground.findById(req.params.id)
+            .then(campground => {
+                res.render('campgrounds/edit', {campground});
+            })
+            .catch(err => {
+                res.redirect('back');
+            });
+
+});
+
+// Updata campground route
+router.put('/:id', checkCampgroundOwnership,(req, res) => {
+    Campground.findByIdAndUpdate(req.params.id, req.body.campground)
+        .then(campground => {
+            res.redirect(`/campgrounds/${req.params.id}`);
+        })
+        .catch(err => {
+            res.redirect('/campgrounds')
+        })
+});
+
+// Destroy Campground Route
+router.delete('/:id', checkCampgroundOwnership,(req, res) => {
+    Campground.findByIdAndRemove(req.params.id)
+        .then(campground => {
+            res.redirect('/campgrounds');
+        })
+        .catch(err => {
+            res.redirect('/campgrounds');
+        })
+});
+
 // middleware
 function isLoggedIn (req, res, next){
     if(req.isAuthenticated()){
         return next();
     }
     res.redirect('/login')
+}
+function checkCampgroundOwnership(req, res, next){
+    if(req.isAuthenticated()){
+        Campground.findById(req.params.id)
+            .then(campground => {
+                if(campground.author.id.equals(req.user._id)){
+                    next();
+                }else{
+                    res.redirect('back');
+                }
+            })
+            .catch(err => {
+                res.redirect('back');
+            });
+    }else{
+        res.redirect("back");
+    }
 }
 
 module.exports = router;
