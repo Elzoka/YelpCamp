@@ -27,6 +27,7 @@ router.post('/', isLoggedIn,(req, res) => {
                     comment.save();
                     campground.comments.push(comment);
                     campground.save()
+                    req.flash('success', 'Successfully added comment');
                     res.redirect(`/campgrounds/${campground._id}`);
                 })
                 .catch(err => {
@@ -65,6 +66,7 @@ router.put('/:comment_id', checkCommentOwnership,(req, res) => {
 router.delete('/:comment_id', checkCommentOwnership,(req, res) => {
     Comment.findByIdAndRemove(req.params.comment_id)
         .then(comment => {
+            req.flash('success', "Comment deleted")
             res.redirect(`/campgrounds/${req.params.id}`);
         })
         .catch(err => {

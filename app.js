@@ -2,13 +2,14 @@
 require('./config/config');
 
 // require third party modules
-const express    = require('express');
-const bodyParser = require('body-parser');
-const mongoose   = require('mongoose');
-const app        = express();
-const passport   = require('passport');
-const LocalStrategy = require('passport-local');
+const express        = require('express');
+const bodyParser     = require('body-parser');
+const mongoose       = require('mongoose');
+const app            = express();
+const passport       = require('passport');
+const LocalStrategy  = require('passport-local');
 const methodOverride = require('method-override');
+const flash          = require('connect-flash');
 
 // require models
 const Campground = require('./models/campground');
@@ -43,10 +44,14 @@ passport.use(new LocalStrategy(User.authenticate()));
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
+// connect-flash middleware
+app.use(flash());
 
 // custom middleware
 app.use((req, res, next) => {
     res.locals.user = req.user;
+    res.locals.success_msg = req.flash("success");
+    res.locals.error_msg = req.flash("error");
     next();
 });
 
