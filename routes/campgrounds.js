@@ -25,6 +25,7 @@ router.post('/', isLoggedIn,(req, res) => {
         name: req.body.name,
         image: req.body.image,
         description: req.body.description,
+        price: String(parseFloat(Math.round(req.body.price * 100) / 100).toFixed(2)),
         author: {
             id: req.user._id,
             username: req.user.username
